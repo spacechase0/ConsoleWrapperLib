@@ -30,13 +30,18 @@ public class ConsoleWrapper : IDisposable
 
     public ConsoleWrapper()
     {
-        streamWriter = new StreamWriter(stream);
-        streamWriter.AutoFlush = true;
+        streamWriter = new StreamWriter(stream, Console.OutputEncoding)
+        {
+            AutoFlush = true,
+        };
 
         Console.SetOut(streamWriter);
         Console.SetError(streamWriter);
 
-        stdout = new(Console.OpenStandardOutput()) { AutoFlush = true };
+        stdout = new(Console.OpenStandardOutput(), Console.OutputEncoding) { AutoFlush = true };
+
+        oldOutputX = Console.CursorLeft;
+        oldOutputY = Console.CursorTop;
     }
 
     public string ReadLine()

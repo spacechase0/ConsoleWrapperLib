@@ -10,6 +10,7 @@
     <PackageTags>console</PackageTags>
     <PackageId>spacechase0.$(AssemblyName)</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+	<Version>1.0.1</Version>
   </PropertyGroup>
 
 </Project>
