@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Title>Console Wrapper Library</Title>
+    <Description>Wrap the console with history and auto completion. Supports console colors.</Description>
+    <PackageProjectUrl></PackageProjectUrl>
+    <RepositoryUrl>https://github.com/spacechase0/ConsoleWrapperLib</RepositoryUrl>
+    <PackageTags>console</PackageTags>
+    <PackageId>spacechase0.$(AssemblyName)</PackageId>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+</Project>
