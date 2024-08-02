@@ -288,40 +288,43 @@ public class ConsoleWrapper : IDisposable
             }
         }
 
-        int inputY = Console.BufferHeight - inputLineCount;
-        Console.SetCursorPosition(oldOutputX, oldOutputY);
-        foreach (var entry in pendingOutput)
+        lock (Console.Out)
         {
-            if (entry.NoColor)
-                Console.ResetColor();
-            else
+            int inputY = Console.BufferHeight - inputLineCount;
+            Console.SetCursorPosition(oldOutputX, oldOutputY);
+            foreach (var entry in pendingOutput)
             {
-                Console.ForegroundColor = entry.Foreground;
-                Console.BackgroundColor = entry.Background;
+                if (entry.NoColor)
+                    Console.ResetColor();
+                else
+                {
+                    Console.ForegroundColor = entry.Foreground;
+                    Console.BackgroundColor = entry.Background;
+                }
+                stdout.Write(entry.Value);
             }
-            stdout.Write(entry.Value);
+            Console.ResetColor();
+
+            oldOutputX = Console.CursorLeft;
+            oldOutputY = Console.CursorTop;
+            stdout.Write(new string(' ', Console.BufferWidth - oldOutputX));
+            Console.CursorLeft = oldOutputX;
+
+            int extra = 0;
+            if (Console.CursorTop > outputLinesAllowed)
+            {
+                int diff = Console.CursorTop - outputLinesAllowed;
+                int extraScroll = Console.BufferHeight - Console.CursorTop - 1;
+                string bufferLine = new string(' ', Console.BufferWidth);
+                for (int i = 0; i < diff + extraScroll; ++i)
+                    stdout.WriteLine(bufferLine);
+                oldOutputY -= diff;
+            }
+
+            Console.SetCursorPosition(0, inputY);
+            stdout.Write(inputOutput);
+            Console.SetCursorPosition((2 + caretDisplay) % Console.BufferWidth, inputY + inputLineCount - 1);
         }
-        Console.ResetColor();
-
-        oldOutputX = Console.CursorLeft;
-        oldOutputY = Console.CursorTop;
-        stdout.Write(new string(' ', Console.BufferWidth - oldOutputX));
-        Console.CursorLeft = oldOutputX;
-
-        int extra = 0;
-        if (Console.CursorTop > outputLinesAllowed)
-        {
-            int diff = Console.CursorTop - outputLinesAllowed;
-            int extraScroll = Console.BufferHeight - Console.CursorTop - 1;
-            string bufferLine = new string(' ', Console.BufferWidth);
-            for ( int i = 0; i < diff + extraScroll; ++i )
-                stdout.WriteLine(bufferLine);
-            oldOutputY -= diff;
-        }
-
-        Console.SetCursorPosition(0, inputY);
-        stdout.Write(inputOutput);
-        Console.SetCursorPosition((2 + caretDisplay) % Console.BufferWidth, inputY + inputLineCount - 1);
     }
 
     public void Dispose()
