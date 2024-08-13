@@ -1,4 +1,8 @@
-﻿namespace ConsoleWrapperLib;
+﻿using System.Collections.Concurrent;
+using System.Data;
+using System.Reflection;
+
+namespace ConsoleWrapperLib;
 
 internal class PendingStream : Stream
 {
@@ -10,7 +14,7 @@ internal class PendingStream : Stream
     }
 
     //private long lastRead = 0;
-    private Queue<PendingChunk> pending = new();
+    private ConcurrentQueue<PendingChunk> pending = new();
     private MemoryStream buffer = new();
 
     public PendingStream()
@@ -20,19 +24,21 @@ internal class PendingStream : Stream
 
     public PendingChunk? ReadPending()
     {
-        lock (buffer)
-        {
-            if (pending.Count == 0)
-                return null;
-            return pending.Dequeue();
-            /*
-            byte[] data = new byte[buffer.Length - lastRead];
-            buffer.Position = lastRead;
-            buffer.Read(data, 0, data.Length);
-            lastRead = buffer.Position;
-            return data;
-            */
-        }
+        if (pending.TryDequeue(out PendingChunk ret))
+            return ret;
+        return null;
+        /*
+        byte[] data = new byte[buffer.Length - lastRead];
+        buffer.Position = lastRead;
+        buffer.Read(data, 0, data.Length);
+        lastRead = buffer.Position;
+        return data;
+        */
+    }
+
+    public void AddPending(PendingChunk chunk)
+    {
+        pending.Enqueue(chunk);
     }
 
     public override bool CanRead => buffer.CanRead;

@@ -12,6 +12,8 @@ public class ConsoleWrapper : IDisposable
     private List<string> history = new();
     private PendingStream stream = new();
     private StreamWriter streamWriter;
+    public readonly ConsoleColor DefaultForeground;
+    public readonly ConsoleColor DefaultBackground;
 
     private string preAutocomplete = null;
     private string autocompleteExtra = null;
@@ -34,6 +36,9 @@ public class ConsoleWrapper : IDisposable
         {
             AutoFlush = true,
         };
+        Console.ResetColor();
+        DefaultForeground = Console.ForegroundColor;
+        DefaultBackground = Console.BackgroundColor;
 
         Console.SetOut(streamWriter);
         Console.SetError(streamWriter);
@@ -42,6 +47,20 @@ public class ConsoleWrapper : IDisposable
 
         oldOutputX = Console.CursorLeft;
         oldOutputY = Console.CursorTop;
+    }
+    public void WriteLine(string str)
+    {
+        WriteLine(str, DefaultForeground, DefaultBackground);
+    }
+
+    public void WriteLine(string str, ConsoleColor foreground, ConsoleColor background)
+    {
+        stream.AddPending(new()
+        {
+            Data = Console.OutputEncoding.GetBytes(str + '\n'),
+            Foreground = foreground,
+            Background = background
+        });
     }
 
     public string ReadLine()
